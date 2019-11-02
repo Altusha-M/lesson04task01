@@ -1,8 +1,6 @@
 package part1.lesson03.task01;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * my realization of HashMap class
@@ -10,13 +8,12 @@ import java.util.Set;
  */
 
 
-class Node {
-    private Object key;
-    private Object value;
+class Node<K, V> {
+    private K key;
+    private V value;
     private int hash;
 
-    Node(Object key, Object value) {
-
+    Node(K key, V value) {
         this.key = key;
         if (key == null) {
             throw new IllegalArgumentException();
@@ -28,11 +25,11 @@ class Node {
         hash = key.hashCode();
     }
 
-    public Object getKey() {
+    public K getKey() {
         return key;
     }
 
-    public Object getValue() {
+    public V getValue() {
         return value;
     }
 
@@ -41,7 +38,7 @@ class Node {
     }
 }
 
-public class MyMap implements Map {
+public class MyMap<K, V> implements Map {
     private int size = 100;
     private int bucketSize = 10;
     public Node[][] myMap = new Node[size][bucketSize];
@@ -51,7 +48,7 @@ public class MyMap implements Map {
     public MyMap() {
     }
 
-    public MyMap(Object key, Object value) {
+    public MyMap(K key, V value) {
         Node newNode = new Node(key, value);
         this.put(newNode);
         counter++;
@@ -91,7 +88,7 @@ public class MyMap implements Map {
         return myMap;
     }
 
-    private int getBucketIndex(Object key) {
+    private int getBucketIndex(K key) {
         int buckInd;
         try {
             buckInd = key.hashCode() & (size - 1);
@@ -100,8 +97,9 @@ public class MyMap implements Map {
         }
         return buckInd;
     }
+    HashMap n = new HashMap();
 
-    public Object put(Object key, Object value) {
+    public V put(K key, V value) {
         Node newNode = new Node(key, value);
         return this.put(newNode);
  /*       try {
@@ -130,7 +128,7 @@ public class MyMap implements Map {
   */
     }
 
-    public Object put(Node newNode) {
+    public V put(Node newNode) {
         bucketIndex = getBucketIndex(newNode.getKey());
         boolean emptyBucketCondition = myMap[bucketIndex][0] == null;
         if (emptyBucketCondition) {
