@@ -5,13 +5,15 @@ import java.util.*;
 /**
  * my realization of HashMap class
  * implements Map interface
+ * @author Altynov Mikhail
+ * @version 1.0
  */
 
-
-class Node<K, V> {
+class Node<K, V> implements Map.Entry<K, V>{
     private K key;
     private V value;
     private int hash;
+    private Node<K, V> nextNode;
 
     Node(K key, V value) {
         this.key = key;
@@ -23,6 +25,15 @@ class Node<K, V> {
             throw new IllegalArgumentException();
         }
         hash = key.hashCode();
+        nextNode = null;
+    }
+
+    public Node<K, V> getNextNode() {
+        return nextNode;
+    }
+
+    public void setNextNode(Node<K, V> nextNode) {
+        this.nextNode = nextNode;
     }
 
     public K getKey() {
@@ -33,15 +44,26 @@ class Node<K, V> {
         return value;
     }
 
+    public V setValue(V value) {
+        V oldValue = value;
+        this.value = value;
+        return oldValue;
+    }
+
     public int getHash() {
         return hash;
     }
+
+    public String toString() {
+        return (this.key + "=" + this.value);
+    }
 }
 
-public class MyMap<K, V> implements Map {
-    private int size = 100;
-    private int bucketSize = 10;
-    public Node[][] myMap = new Node[size][bucketSize];
+public class MyMap<K, V> implements Map<K, V> {
+    HashMap<Integer, Integer> n = new HashMap<>();
+    HashMap nn = new HashMap();
+    private int size = 2 ^ 3;
+    private Node<K, V>[] myMap = new Node[size];
     private int bucketIndex;
     private int counter = 0;
 
@@ -49,25 +71,9 @@ public class MyMap<K, V> implements Map {
     }
 
     public MyMap(K key, V value) {
-        Node newNode = new Node(key, value);
+        Node<K, V> newNode = new Node<>(key, value);
         this.put(newNode);
         counter++;
-    }
-
-    public static void main(String[] args) {
-        MyMap myMap = new MyMap();
-        myMap.put("10", "10");
-        myMap.put("11", "10");
-        myMap.put("12", "10");
-        myMap.put(1, "10");
-        myMap.put(2, "10");
-        System.out.println(myMap.containsKey("1"));
-        System.out.println(myMap.size());
-        System.out.println(myMap.get("12"));
-        myMap.remove(1);
-        System.out.println(myMap.get(1));
-        myMap.clear();
-        System.out.println(myMap.get("12"));
     }
 
     public int getSize() {
@@ -75,7 +81,7 @@ public class MyMap<K, V> implements Map {
     }
 
     @Override
-    public int size() { // tested
+    public int size() {
         return counter;
     }
 
@@ -84,162 +90,208 @@ public class MyMap<K, V> implements Map {
         return (counter == 0);
     }
 
-    public Node[][] getMyMap() {
+    public Node[] getMyMap() {
         return myMap;
     }
 
     private int getBucketIndex(K key) {
         int buckInd;
         try {
-            buckInd = key.hashCode() & (size - 1);
+            buckInd = key.hashCode() % size;
         } catch (NullPointerException e) {
             throw e;
         }
         return buckInd;
     }
-    HashMap n = new HashMap();
 
     public V put(K key, V value) {
-        Node newNode = new Node(key, value);
+        Node<K, V> newNode = new Node<>(key, value);
         return this.put(newNode);
- /*       try {
-            bucketIndex = newNode.getHash() & (size - 1);
-        } catch (NullPointerException e) {
-            throw e;
-        }
-        boolean emptyBucketCondition = myMap[bucketIndex][0] == null;
-        if (emptyBucketCondition) {
-            myMap[bucketIndex][0] = newNode;
-            counter++;
-            return null;
-        } else {
-            int i = 0;
-            do {
-                if (!myMap[bucketIndex][i].getKey().equals(key)) {
-                    Node tmp = myMap[bucketIndex][i];
-                    myMap[bucketIndex][i] = newNode;
-                    counter++;
-                    return tmp;
-                }
-                i++;
-            } while (myMap[bucketIndex][i + 1] != null);
-        }
-        return null;
-  */
     }
 
-    public V put(Node newNode) {
+    public V put(Node<K, V> newNode) {
         bucketIndex = getBucketIndex(newNode.getKey());
-        boolean emptyBucketCondition = myMap[bucketIndex][0] == null;
-        if (emptyBucketCondition) {
-            myMap[bucketIndex][0] = newNode;
+        if (myMap[bucketIndex] == null) {
+            myMap[bucketIndex] = newNode;
             counter++;
             return null;
-        } else {
-            int i = 0;
-            do {
-                if (!myMap[bucketIndex][i].getKey().equals(newNode.getKey())) {
-                    Node tmp = myMap[bucketIndex][i];
-                    myMap[bucketIndex][i] = newNode;
-                    counter++;
-                    return tmp;
-                }
-                i++;
-            } while (myMap[bucketIndex][i + 1] != null);
         }
+        Node<K, V> curNode = myMap[bucketIndex];
+        while (curNode.getNextNode() != null) {
+            if (curNode.getKey().equals(newNode.getKey())) {
+                V val = curNode.setValue(newNode.getValue());
+                counter++;
+                return val;
+            } else {
+                curNode = curNode.getNextNode();
+            }
+        }
+        curNode.setNextNode(newNode);
+        counter++;
         return null;
     }
 
-    public Object get(Object key) {
-        bucketIndex = getBucketIndex(key);
-        boolean emptyBucketCondition = myMap[bucketIndex][0] == null;
-        if (emptyBucketCondition) {
+    public V get(Object key) {
+        bucketIndex = getBucketIndex((K) key);
+        if (myMap[bucketIndex] == null) {
             return null;
+        }
+        Node<K, V> curNode = myMap[bucketIndex];
+        while (curNode.getNextNode() != null) {
+            if (curNode.getKey().equals(key)) {
+                return curNode.getValue();
+            } else {
+                curNode = curNode.getNextNode();
+            }
+        }
+        if (curNode.getKey().equals(key)) {
+            return curNode.getValue();
         } else {
-            int i = 0;
-            do {
-                if (myMap[bucketIndex][i].getKey().equals(key)) {
-                    return myMap[bucketIndex][i].getKey();
-                }
-                if (i < bucketSize - 1) {
-                    i++;
-                } else {
-                    return null;
-                }
-            } while (myMap[bucketIndex][i + 1] != null);
             return null;
         }
     }
 
-    public Object remove(Object key) {
-        bucketIndex = getBucketIndex(key);
-        boolean emptyBucketCondition = myMap[bucketIndex][0] == null;
-        if (emptyBucketCondition) {
-            throw new RuntimeException();
-        } else {
-            int i = 0;
-            do {
-                if (myMap[bucketIndex][i].getKey().equals(key)) {
-                    Node tmp = myMap[bucketIndex][i];
-                    myMap[bucketIndex][i] = myMap[bucketIndex][i + 1];
-                    myMap[bucketIndex][i + 1] = null;
-                    counter--;
-                    return tmp;
-                }
-                i++;
-            } while (i < bucketSize);
-            throw new RuntimeException();
+    public V remove(Object key) {
+        bucketIndex = getBucketIndex((K) key);
+        if (myMap[bucketIndex] == null) {
+            return null;
+        } else if(myMap[bucketIndex].getKey().equals(key)) {
+            Node<K, V> tmp = myMap[bucketIndex];
+            myMap[bucketIndex] = null;
+            return tmp.getValue();//tmp.getValue();
         }
+        Node<K, V> curNode = myMap[bucketIndex];
+        Node<K, V> nextNode = curNode.getNextNode();
+        while (curNode.getNextNode() != null) {
+            if (nextNode.getKey().equals(key)) {
+                curNode.setNextNode(nextNode.getNextNode());
+                counter--;
+                return nextNode.getValue();
+            } else {
+                curNode = curNode.getNextNode();
+                nextNode = nextNode.getNextNode();
+            }
+        }
+        if (curNode.getKey().equals(key)) {
+            Node<K, V> tmp = curNode;
+            curNode = null;
+            counter--;
+            return tmp.getValue();
+        }
+        return null;
     }
 
     @Override
     public void putAll(Map m) {
-
+        Set<Entry<K,V>> es = m.entrySet();
+        for (Entry<K, V> e : es) {
+            this.put(e.getKey(), e.getValue());
+        }
     }
 
     public void clear() {
         for (bucketIndex = 0; bucketIndex < size; bucketIndex++) {
-            for (int i = 0; i < bucketSize; i++) {
-                myMap[bucketIndex][i] = null;
-                counter = 0;
-            }
+            myMap[bucketIndex] = null;
+            counter = 0;
         }
     }
 
     @Override
     public Set keySet() {
-        return null;
+        Set<K> keys = new HashSet<>();
+        Set<Entry<K,V>> se = this.entrySet();
+        for (Entry<K,V> entry : se) {
+            //System.out.println(this.get(k));
+            keys.add(entry.getKey());
+        }
+        return keys;
     }
 
     @Override
-    public Collection values() {
-        return null;
+    public Collection<V> values() {
+        Collection<V> vals = new ArrayList<>();
+        Set<K> keys = this.keySet();
+        for (K k : keys) {
+            vals.add(this.get(k));
+        }
+        return vals;
     }
 
     @Override
-    public Set<Entry> entrySet() {
-        return null;
+    public Set<Entry<K, V>> entrySet() {
+        Set<Entry<K, V>> ks = new HashSet<>();
+        if (this.isEmpty()){
+            return ks;
+        } else {
+            for (int i = 0; i < size; i++) {
+                Node<K, V> curNode = myMap[i];
+                if (myMap[i] == null) {
+                    myMap[i] = curNode;
+                } else {
+                    while (curNode != null){
+                        ks.add(curNode);
+                        curNode = curNode.getNextNode();
+                    }
+                    return ks;
+                }
+            }
+            return ks;
+        }
     }
 
     public boolean containsKey(Object key) {
-        bucketIndex = getBucketIndex(key);
-        boolean emptyBucketCondition = myMap[bucketIndex][0] == null;
-        if (emptyBucketCondition) {
-            return false;
-        } else {
-            int i = 0;
-            do {
-                if (myMap[bucketIndex][i].getKey().equals(key)) {
-                    return true;
-                }
-                i++;
-            } while (myMap[bucketIndex][i + 1] != null);
+        bucketIndex = getBucketIndex((K) key);
+        if (myMap[bucketIndex] == null) {
             return false;
         }
+        Node<K, V> curNode = myMap[bucketIndex];
+        while (curNode.getNextNode() != null) {
+            if (curNode.getKey().equals(key)) {
+                return true;
+            } else {
+                curNode = curNode.getNextNode();
+            }
+        }
+        if (curNode.getKey().equals(key)) {
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean containsValue(Object value) {
-        return false;
+        if (this.isEmpty()){
+            return false;
+        } else {
+            for (int i = 0; i < size; i++) {
+                if (myMap[i] == null) {
+                    continue;
+                } else {
+                    Node<K, V> curNode = myMap[i];
+                    while (curNode != null) {
+                        if (curNode.getValue().equals(value)) {
+                            return true;
+                        }
+                        curNode = curNode.getNextNode();
+                    }
+                    return false;
+                }
+            }
+            return false;
+        }
+    }
+
+    public static void main(String[] args) {
+        MyMap<Object, Object> myMap = new MyMap<>();
+        HashMap<Object, Object> n = new HashMap<>();
+        for (int i = 0; i < 50; i++) {
+            myMap.put(i,"value"+i);
+            n.put(100+i,"value"+i);
+        }
+        myMap.putAll(n);
+        Collection<Object> a = myMap.values();
+        Collection<Object> a1 = n.values();
+
+        System.out.println(myMap.keySet());
     }
 }
