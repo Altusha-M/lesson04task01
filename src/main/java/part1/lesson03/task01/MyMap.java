@@ -1,5 +1,6 @@
 package part1.lesson03.task01;
 
+import java.sql.SQLOutput;
 import java.util.*;
 
 /**
@@ -116,19 +117,27 @@ public class MyMap<K, V> implements Map<K, V> {
             counter++;
             return null;
         }
+
         Node<K, V> curNode = myMap[bucketIndex];
         while (curNode.getNextNode() != null) {
             if (curNode.getKey().equals(newNode.getKey())) {
                 V val = curNode.setValue(newNode.getValue());
-                counter++;
+
                 return val;
             } else {
                 curNode = curNode.getNextNode();
             }
         }
+        V val = curNode.getValue();
+
+        if (curNode.getKey().equals(newNode.getKey())) {
+            V val1 = curNode.setValue(newNode.getValue());
+        }
+        if (!curNode.getKey().equals(newNode.getKey())){
+            counter++;
+        }
         curNode.setNextNode(newNode);
-        counter++;
-        return null;
+        return val;
     }
 
     public V get(Object key) {
@@ -197,7 +206,7 @@ public class MyMap<K, V> implements Map<K, V> {
     }
 
     @Override
-    public Set keySet() {
+    public Set<K> keySet() {
         Set<K> keys = new HashSet<>();
         Set<Entry<K,V>> se = this.entrySet();
         for (Entry<K,V> entry : se) {
@@ -252,10 +261,7 @@ public class MyMap<K, V> implements Map<K, V> {
                 curNode = curNode.getNextNode();
             }
         }
-        if (curNode.getKey().equals(key)) {
-            return true;
-        }
-        return false;
+        return curNode.getKey().equals(key);
     }
 
     @Override
@@ -282,16 +288,21 @@ public class MyMap<K, V> implements Map<K, V> {
     }
 
     public static void main(String[] args) {
-        MyMap<Object, Object> myMap = new MyMap<>();
-        HashMap<Object, Object> n = new HashMap<>();
-        for (int i = 0; i < 50; i++) {
-            myMap.put(i,"value"+i);
-            n.put(100+i,"value"+i);
-        }
-        myMap.putAll(n);
-        Collection<Object> a = myMap.values();
-        Collection<Object> a1 = n.values();
+        MyMap<String, Integer> myMap = new MyMap<>();
+        HashMap<String, Integer> hashMap = new HashMap<>();
 
+        for (int i = 0; i < 25; i++) {
+            myMap.put(i+"23"+"",i);
+            hashMap.put(i+"23"+"",i);
+        }
+        for (int i = 0; i < 25; i++) {
+            myMap.put(i+"12"+i,i);
+            hashMap.put(i+"12"+i,i);
+        }
         System.out.println(myMap.keySet());
+        System.out.println(hashMap.keySet());
+        Collection<Integer> a = myMap.values();
+     //   Collection<String> a1 = n.values();
+        System.out.println(a);
     }
 }

@@ -1,19 +1,24 @@
 package part1.lesson03.task01;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MyMapTest {
-    MyMap<Object, Object> myMap = new MyMap<>();
-    HashMap<Object, Object> hashMap = new HashMap<>();
+    MyMap<String, String> myMap = new MyMap<>();
+    HashMap<String, String> hashMap = new HashMap<>();
+
+    @Before
+    public void cleanMaps() {
+        hashMap.clear();
+        myMap.clear();
+    }
 
     @Test
     public void size() {
@@ -22,44 +27,27 @@ class MyMapTest {
             myMap.put("nodeNumber" + i, "value");
             hashMap.put("nodeNumber" + i, "value");
         }
+        myMap.put("nodeNumber" + 25, "value2");
         assertEquals(i, myMap.size());
         assertEquals(hashMap.size(), myMap.size());
     }
 
     @Test
     public void put() {
-        myMap.clear();
-        hashMap.clear();
         String a = "1st key";
-        myMap.put(a, 1);
-        hashMap.put(a, 1);
-        assertEquals(myMap.get(a), 1);
+        assertEquals(hashMap.put(a, "1"), myMap.put(a, "1"));
+        assertEquals(hashMap.put(a, "2"), myMap.put(a, "2"));
+        assertEquals("2", myMap.get(a));
         assertEquals(hashMap.get(a), myMap.get(a));
-        try {
-            myMap.put(null);
-            Assert.fail("Expected NullPointerException");
-        }catch (Exception e){ //NullPointerException e) {
-            assertEquals(e.getClass(), NullPointerException.class);
-            // Assert.assertNotEquals("", e.getMessage());
-        }
     }
 
     @Test
     public void containsKey() {
+        myMap.put("1", "1");
+        assertTrue(myMap.containsKey("1"));
         myMap.clear();
         myMap.put("1", "1");
         assertTrue(myMap.containsKey("1"));
-        try {
-            myMap.containsKey(null);
-            Assert.fail("Expected NullPointerException");
-        }catch (NullPointerException e) {
-            Assert.assertNotEquals("", e.getMessage());
-        }
-    }
-
-    @Test
-    void containsValue() {
-
     }
 
     @Test
@@ -68,36 +56,22 @@ class MyMapTest {
 
     @Test
     public void get() {
-        Object o = "q";
-        myMap.put(o, 2);
-        assertTrue(myMap.get(o).equals(2));
-        try {
-            myMap.get(null);
-            Assert.fail("Expected NullPointerException");
-        }catch (NullPointerException e) {
-            Assert.assertNotEquals("", e.getMessage());
-        }
+        String o = "q";
+        myMap.put(o, ""+2);
+        hashMap.put(o,""+2);
+        assertTrue(myMap.get(o).equals(""+2));
+        assertEquals(hashMap.get(o), myMap.get(o));
     }
 
     @Test
     public void remove() {
-        for (int i = 0; i < 50; i++) {
-            myMap.put(i,i);
+        for (int i = 0; i < 500; i++) {
+            myMap.put(""+i,i+"");
+            hashMap.put(""+i,i+"");
         }
-        for (int i = 0; i < 50; i++) {
-            assertTrue(myMap.containsKey(i));
-        }
-        for (int i = 0; i < 50; i+=2) {
-            myMap.remove(i);
-        }
-        for (int i = 0; i < 50; i+=2) {
-            assertTrue(!myMap.containsKey("1"));
-        }
-        try {
-            myMap.remove(null);
-            Assert.fail("Expected NullPointerException");
-        } catch (NullPointerException e) {
-            Assert.assertNotEquals("", e.getMessage());
+        for (int i = 0; i < 500; i++) {
+            assertTrue(myMap.containsKey(""+i));
+            assertEquals(hashMap.containsKey(""+i), myMap.containsKey(""+i));
         }
     }
 
@@ -120,36 +94,62 @@ class MyMapTest {
 
     @Test
     void isEmpty() {
-        hashMap.clear();
-        myMap.clear();
         assertTrue(myMap.isEmpty());
         assertEquals(hashMap.isEmpty(), myMap.isEmpty());
     }
 
     @Test
-    void putAll() {
+    void keySet() {
+        Set s = new HashSet();
+        for (int i = 0; i < 50; i++) {
+            myMap.put(i+"",""+i);
+            hashMap.put(i+"",""+i);
+        }
+        assertEquals(hashMap.keySet(), myMap.keySet());
+        for (int i = 0; i < 50; i+=2) {
+            myMap.put(i+"",""+i);
+            hashMap.put(i+"",""+i);
+        }
+        assertEquals(hashMap.keySet(), myMap.keySet());
     }
 
     @Test
-    void keySet() {
-        MyMap<Object, Object> myMap = new MyMap<>();
-        HashMap<Object, Object> n = new HashMap<>();
-        Set s = new HashSet();
-        for (int i = 0; i < 50; i++) {
-            myMap.put(i,i);
-            n.put(i,i);
-        }
-        assertEquals(n.keySet(), myMap.keySet());
-        for (int i = 0; i < 50; i+=2) {
-            myMap.put(i,i);
-            n.put(i,i);
-        }
-        assertEquals(n.keySet(), myMap.keySet());
+    void containsValue() {
+        myMap.put("1", "1");
+        assertTrue(myMap.containsValue("1"));
+        hashMap.put("2", "1");
+        assertEquals(hashMap.containsValue("1"), myMap.containsValue("1"));
+        myMap.clear();
+        assertTrue(!myMap.containsValue("1"));
+        hashMap.clear();
+        assertEquals(hashMap.containsValue("1"), myMap.containsValue("1"));
     }
 
     @Test
     void values() {
+        Collection<String> s = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            myMap.put(i+"",""+i);
+            hashMap.put(i+"",""+i);
+        }
+        s = myMap.values();
+        for (String str : s) {
+            assertTrue(myMap.containsValue(str));
+            assertEquals(hashMap.containsValue(str), myMap.containsValue(str));
+        }
+    }
 
+    @Test
+    void putAll() {
+        Map<String, String> puttedMap = new HashMap<>();
+        for (int i = 0; i < 50; i++) {
+            myMap.put(i+"1",""+i);
+            hashMap.put(i+"1",""+i);
+            puttedMap.put(i+"22222222222",""+i);
+        }
+        myMap.putAll(puttedMap);
+        hashMap.putAll(puttedMap);
+        assertEquals(hashMap.size(), myMap.size());
     }
 
     @Test
