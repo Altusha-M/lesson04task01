@@ -77,6 +77,9 @@ public class MyMap<K, V> implements Map<K, V> {
         counter++;
     }
 
+    /**
+     * @return capacity of MyMap
+     */
     public int getSize() {
         return size;
     }
@@ -95,6 +98,10 @@ public class MyMap<K, V> implements Map<K, V> {
         return myMap;
     }
 
+    /**
+     * @param key
+     * @return index of bucket with elemet key
+     */
     private int getBucketIndex(K key) {
         int buckInd;
         try {
@@ -105,6 +112,12 @@ public class MyMap<K, V> implements Map<K, V> {
         return buckInd;
     }
 
+    /**
+     *
+     * @param key
+     * @param value
+     * @return overridden value of Value if it was refresh or null
+     */
     public V put(K key, V value) {
         Node<K, V> newNode = new Node<>(key, value);
         return this.put(newNode);
@@ -160,6 +173,11 @@ public class MyMap<K, V> implements Map<K, V> {
         }
     }
 
+    /**
+     *
+     * @param key
+     * @return deleted value of Value if it was delete or null
+     */
     public V remove(Object key) {
         bucketIndex = getBucketIndex((K) key);
         if (myMap[bucketIndex] == null) {

@@ -154,7 +154,22 @@ class MyMapTest {
 
     @Test
     void entrySet() {
+        String key, value;
+        for (int i = 0; i < 500; i++) {
+            key = "key" + i*i;
+            value = "value"+ (i+i);
+            myMap.put(key, value);
+            hashMap.put(key, value);
+        }
+        Set<Map.Entry<String, String>> myEntrySet = myMap.entrySet();
+        Set<Map.Entry<String, String>> hashEntrySet = hashMap.entrySet();
 
+        for (Map.Entry<String, String> en: myEntrySet) {
+            assertTrue(myMap.containsKey(en.getKey()));
+            assertEquals(myMap.containsKey(en.getKey()), hashMap.containsKey(en.getKey()));
+            assertTrue(myMap.containsValue(en.getValue()));
+            assertEquals(myMap.containsValue(en.getValue()), hashMap.containsValue(en.getValue()));
+        }
     }
 
 }
