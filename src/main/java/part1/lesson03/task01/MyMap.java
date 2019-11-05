@@ -1,16 +1,16 @@
 package part1.lesson03.task01;
 
-import java.sql.SQLOutput;
 import java.util.*;
 
 /**
  * my realization of HashMap class
  * implements Map interface
+ *
  * @author Altynov Mikhail
  * @version 1.0
  */
 
-class Node<K, V> implements Map.Entry<K, V>{
+class Node<K, V> implements Map.Entry<K, V> {
     private K key;
     private V value;
     private int hash;
@@ -56,25 +56,45 @@ class Node<K, V> implements Map.Entry<K, V>{
     }
 
     public String toString() {
-        return (this.key + "=" + this.value);
+        return ("\"" + this.key + "=" + this.value + "\"");
     }
 }
 
 public class MyMap<K, V> implements Map<K, V> {
     HashMap<Integer, Integer> n = new HashMap<>();
     HashMap nn = new HashMap();
-    private int size = 2 ^ 3;
+    private int size = 16;
     private Node<K, V>[] myMap = new Node[size];
     private int bucketIndex;
     private int counter = 0;
+    Set<Map.Entry<K,V>> EntrySet = new HashSet<>();
 
     public MyMap() {
     }
 
     public MyMap(K key, V value) {
-        Node<K, V> newNode = new Node<>(key, value);
-        this.put(newNode);
-        counter++;
+        this.put(key, value);
+    }
+
+    @Override
+    public String toString() {
+        String result = "";
+        if (this.isEmpty()) {
+            return "[]";
+        } else {
+            for (int i = 0; i < size; i++) {
+                if (myMap[i] == null) {
+                    continue;
+                } else {
+                    Node<K, V> curNode = myMap[i];
+                    while (curNode != null) {
+                        result += curNode.toString() + " ";
+                        curNode = curNode.getNextNode();
+                    }
+                }
+            }
+            return result;
+        }
     }
 
     /**
@@ -105,7 +125,7 @@ public class MyMap<K, V> implements Map<K, V> {
     private int getBucketIndex(K key) {
         int buckInd;
         try {
-            buckInd = key.hashCode() % size;
+            buckInd = key.hashCode() & (size-1);
         } catch (NullPointerException e) {
             throw e;
         }
@@ -113,29 +133,26 @@ public class MyMap<K, V> implements Map<K, V> {
     }
 
     /**
-     *
      * @param key
      * @param value
      * @return overridden value of Value if it was refresh or null
      */
     public V put(K key, V value) {
         Node<K, V> newNode = new Node<>(key, value);
-        return this.put(newNode);
-    }
-
-    public V put(Node<K, V> newNode) {
         bucketIndex = getBucketIndex(newNode.getKey());
         if (myMap[bucketIndex] == null) {
-            myMap[bucketIndex] = newNode;
             counter++;
+            System.out.println(myMap[bucketIndex]);
+            myMap[bucketIndex] = newNode;
+            System.out.println(myMap[bucketIndex]);
+            entrySet();
             return null;
         }
-
         Node<K, V> curNode = myMap[bucketIndex];
         while (curNode.getNextNode() != null) {
             if (curNode.getKey().equals(newNode.getKey())) {
                 V val = curNode.setValue(newNode.getValue());
-
+                entrySet();
                 return val;
             } else {
                 curNode = curNode.getNextNode();
@@ -145,12 +162,14 @@ public class MyMap<K, V> implements Map<K, V> {
 
         if (curNode.getKey().equals(newNode.getKey())) {
             V val1 = curNode.setValue(newNode.getValue());
-        }
-        if (!curNode.getKey().equals(newNode.getKey())){
+            entrySet();
+            return val;
+        } else {
             counter++;
+            curNode.setNextNode(newNode);
+            entrySet();
+            return val;
         }
-        curNode.setNextNode(newNode);
-        return val;
     }
 
     public V get(Object key) {
@@ -174,44 +193,48 @@ public class MyMap<K, V> implements Map<K, V> {
     }
 
     /**
-     *
      * @param key
      * @return deleted value of Value if it was delete or null
      */
     public V remove(Object key) {
         bucketIndex = getBucketIndex((K) key);
         if (myMap[bucketIndex] == null) {
+            entrySet();
             return null;
-        } else if(myMap[bucketIndex].getKey().equals(key)) {
-            Node<K, V> tmp = myMap[bucketIndex];
-            myMap[bucketIndex] = null;
-            return tmp.getValue();//tmp.getValue();
         }
         Node<K, V> curNode = myMap[bucketIndex];
         Node<K, V> nextNode = curNode.getNextNode();
         while (curNode.getNextNode() != null) {
-            if (nextNode.getKey().equals(key)) {
-                curNode.setNextNode(nextNode.getNextNode());
+            if (curNode.getKey().equals(key)) {
+                Node<K, V> tmp = curNode;
+                curNode = nextNode;
                 counter--;
-                return nextNode.getValue();
+                entrySet();
+                return tmp.getValue();
             } else {
                 curNode = curNode.getNextNode();
-                nextNode = nextNode.getNextNode();
+                try {
+                    nextNode = nextNode.getNextNode();
+                } catch (NullPointerException e) {
+                    break;
+                }
             }
         }
         if (curNode.getKey().equals(key)) {
             Node<K, V> tmp = curNode;
-            curNode = null;
+            myMap[bucketIndex] = null;
             counter--;
+            entrySet();
             return tmp.getValue();
         }
+        entrySet();
         return null;
     }
 
     @Override
-    public void putAll(Map m) {
-        Set<Entry<K,V>> es = m.entrySet();
-        for (Entry<K, V> e : es) {
+    public void putAll(Map<? extends K, ? extends V> m) {
+        Set<? extends Entry<? extends K, ? extends V>> es = m.entrySet();
+        for (Entry<? extends K, ? extends V> e : es) {
             this.put(e.getKey(), e.getValue());
         }
     }
@@ -221,14 +244,14 @@ public class MyMap<K, V> implements Map<K, V> {
             myMap[bucketIndex] = null;
             counter = 0;
         }
+        entrySet();
     }
 
     @Override
     public Set<K> keySet() {
         Set<K> keys = new HashSet<>();
-        Set<Entry<K,V>> se = this.entrySet();
-        for (Entry<K,V> entry : se) {
-            //System.out.println(this.get(k));
+        Set<Entry<K, V>> se = this.entrySet();
+        for (Entry<K, V> entry : se) {
             keys.add(entry.getKey());
         }
         return keys;
@@ -245,24 +268,27 @@ public class MyMap<K, V> implements Map<K, V> {
     }
 
     @Override
-    public Set<Entry<K, V>> entrySet() {
-        Set<Entry<K, V>> ks = new HashSet<>();
-        if (this.isEmpty()){
-            return ks;
+    public Set<Map.Entry<K, V>> entrySet() {
+        if (EntrySet != null) {
+            EntrySet = null;
+            EntrySet = new HashSet<>();
+        }
+        if (this.isEmpty()) {
+            EntrySet.clear();
+            return EntrySet;
         } else {
             for (int i = 0; i < size; i++) {
                 Node<K, V> curNode = myMap[i];
                 if (myMap[i] == null) {
-                    myMap[i] = curNode;
+                    continue;
                 } else {
-                    while (curNode != null){
-                        ks.add(curNode);
+                    while (curNode != null) {
+                        EntrySet.add(curNode);
                         curNode = curNode.getNextNode();
                     }
-                    return ks;
                 }
             }
-            return ks;
+            return EntrySet;
         }
     }
 
@@ -284,7 +310,7 @@ public class MyMap<K, V> implements Map<K, V> {
 
     @Override
     public boolean containsValue(Object value) {
-        if (this.isEmpty()){
+        if (this.isEmpty()) {
             return false;
         } else {
             for (int i = 0; i < size; i++) {
@@ -298,7 +324,6 @@ public class MyMap<K, V> implements Map<K, V> {
                         }
                         curNode = curNode.getNextNode();
                     }
-                    return false;
                 }
             }
             return false;
@@ -310,17 +335,16 @@ public class MyMap<K, V> implements Map<K, V> {
         HashMap<String, Integer> hashMap = new HashMap<>();
 
         for (int i = 0; i < 25; i++) {
-            myMap.put(i+"23"+"",i);
-            hashMap.put(i+"23"+"",i);
+            myMap.put(i + "23" + "", i);
+            hashMap.put(i + "23" + "", i);
         }
         for (int i = 0; i < 25; i++) {
-            myMap.put(i+"12"+i,i);
-            hashMap.put(i+"12"+i,i);
+            myMap.put(i + "12" + i, i);
+            hashMap.put(i + "12" + i, i);
         }
         System.out.println(myMap.keySet());
         System.out.println(hashMap.keySet());
         Collection<Integer> a = myMap.values();
-     //   Collection<String> a1 = n.values();
         System.out.println(a);
     }
 }

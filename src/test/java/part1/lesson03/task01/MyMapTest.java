@@ -11,8 +11,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MyMapTest {
-    MyMap<String, String> myMap = new MyMap<>();
-    HashMap<String, String> hashMap = new HashMap<>();
+    MyMap<Integer, String> myMap = new MyMap<>();
+    HashMap<Integer, String> hashMap = new HashMap<>();
 
     @Before
     public void cleanMaps() {
@@ -24,30 +24,51 @@ class MyMapTest {
     public void size() {
         int i = 0;
         for (i = 0; i < 50; i++) {
-            myMap.put("nodeNumber" + i, "value");
-            hashMap.put("nodeNumber" + i, "value");
+            myMap.put(i, "value");
+            hashMap.put(i, "value");
         }
-        myMap.put("nodeNumber" + 25, "value2");
+        myMap.put(25, "value2");
         assertEquals(i, myMap.size());
         assertEquals(hashMap.size(), myMap.size());
     }
 
     @Test
     public void put() {
-        String a = "1st key";
-        assertEquals(hashMap.put(a, "1"), myMap.put(a, "1"));
-        assertEquals(hashMap.put(a, "2"), myMap.put(a, "2"));
-        assertEquals("2", myMap.get(a));
-        assertEquals(hashMap.get(a), myMap.get(a));
+        for (int i = 1; i < 5; i++) {
+            hashMap.put(i, ""+i);
+            myMap.put(i, ""+i);
+            System.out.println(myMap);
+            System.out.println(hashMap);
+        }
+        hashMap.put(0, ""+1);
+        myMap.put(0, ""+1);
+
+        System.out.println(myMap);
+        System.out.println(hashMap);
+        myMap.put(5, ""+5);
+        hashMap.put(5, ""+5);
+
+        System.out.println(myMap);
+        System.out.println(hashMap);
+        myMap.put(20, ""+5);
+        hashMap.put(20, ""+5);
+
+        System.out.println(myMap);
+        System.out.println(hashMap);
+        for (int i = 0; i < 15; i++) {
+            assertEquals(hashMap.get(i), myMap.get(i));
+        }
+        assertEquals(hashMap.put(0, "1"), myMap.put(0, "1"));
+       // assertEquals("2", myMap.get(a));
     }
 
     @Test
     public void containsKey() {
-        myMap.put("1", "1");
-        assertTrue(myMap.containsKey("1"));
+        myMap.put(1, "1");
+        assertTrue(myMap.containsKey(1));
         myMap.clear();
-        myMap.put("1", "1");
-        assertTrue(myMap.containsKey("1"));
+        myMap.put(1, "1");
+        assertTrue(myMap.containsKey(1));
     }
 
     @Test
@@ -56,7 +77,7 @@ class MyMapTest {
 
     @Test
     public void get() {
-        String o = "q";
+        Integer o = 1;
         myMap.put(o, ""+2);
         hashMap.put(o,""+2);
         assertTrue(myMap.get(o).equals(""+2));
@@ -65,28 +86,44 @@ class MyMapTest {
 
     @Test
     public void remove() {
-        for (int i = 0; i < 500; i++) {
-            myMap.put(""+i,i+"");
-            hashMap.put(""+i,i+"");
+        MyMap<Integer, String> myMap = new MyMap<>();
+        HashMap<Integer, String> hashMap = new HashMap<>();
+
+        for (int i = 0; i < 5; i++) {
+            myMap.put(i,i+"");
+            hashMap.put(i,i+"");
         }
-        for (int i = 0; i < 500; i++) {
-            assertTrue(myMap.containsKey(""+i));
-            assertEquals(hashMap.containsKey(""+i), myMap.containsKey(""+i));
+
+        System.out.println(myMap);
+        myMap.remove(0);
+        System.out.println(myMap);
+
+        System.out.println(myMap);
+        myMap.remove(2);
+        System.out.println(myMap);
+
+        System.out.println(myMap);
+        myMap.remove(4);
+        System.out.println(myMap);
+
+        for (int i = 0; i < 150; i++) {
+//            assertTrue(!myMap.containsKey(""+i));
+//            assertEquals(hashMap.containsKey(""+i), myMap.containsKey(""+i));
         }
     }
 
     @Test
     public void clear() {
-        myMap.put("2","3");
-        myMap.put("4","3");
-        myMap.put("5","3");
-        myMap.put("6","3");
-        myMap.put("27","3");
-        hashMap.put("2","3");
-        hashMap.put("4","3");
-        hashMap.put("5","3");
-        hashMap.put("6","3");
-        hashMap.put("27","3");
+        myMap.put(2,"3");
+        myMap.put(4,"3");
+        myMap.put(5,"3");
+        myMap.put(6,"3");
+        myMap.put(28,"3");
+        hashMap.put(2,"3");
+        hashMap.put(4,"3");
+        hashMap.put(5,"3");
+        hashMap.put(6,"3");
+        hashMap.put(28,"3");
         myMap.clear();
         hashMap.clear();
         assertEquals(hashMap.size(), myMap.size());
@@ -102,22 +139,22 @@ class MyMapTest {
     void keySet() {
         Set s = new HashSet();
         for (int i = 0; i < 50; i++) {
-            myMap.put(i+"",""+i);
-            hashMap.put(i+"",""+i);
+            myMap.put(i,""+i);
+            hashMap.put(i,""+i);
         }
         assertEquals(hashMap.keySet(), myMap.keySet());
         for (int i = 0; i < 50; i+=2) {
-            myMap.put(i+"",""+i);
-            hashMap.put(i+"",""+i);
+            myMap.put(i,""+i);
+            hashMap.put(i,""+i);
         }
         assertEquals(hashMap.keySet(), myMap.keySet());
     }
 
     @Test
     void containsValue() {
-        myMap.put("1", "1");
+        myMap.put(1, "1");
         assertTrue(myMap.containsValue("1"));
-        hashMap.put("2", "1");
+        hashMap.put(2, "1");
         assertEquals(hashMap.containsValue("1"), myMap.containsValue("1"));
         myMap.clear();
         assertTrue(!myMap.containsValue("1"));
@@ -129,8 +166,8 @@ class MyMapTest {
     void values() {
         Collection<String> s = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
-            myMap.put(i+"",""+i);
-            hashMap.put(i+"",""+i);
+            myMap.put(i,""+i);
+            hashMap.put(i,""+i);
         }
         s = myMap.values();
         for (String str : s) {
@@ -141,35 +178,53 @@ class MyMapTest {
 
     @Test
     void putAll() {
-        Map<String, String> puttedMap = new HashMap<>();
+        Map<Integer, String> puttedMap = new HashMap<>();
         for (int i = 0; i < 50; i++) {
-            myMap.put(i+"1",""+i);
-            hashMap.put(i+"1",""+i);
-            puttedMap.put(i+"22222222222",""+i);
+            myMap.put(i+1,""+i);
+            hashMap.put(i+1,""+i);
+            puttedMap.put(i+1111,""+i);
         }
         myMap.putAll(puttedMap);
         hashMap.putAll(puttedMap);
         assertEquals(hashMap.size(), myMap.size());
+        assertEquals(hashMap.keySet(), myMap.keySet());
     }
 
     @Test
     void entrySet() {
-        String key, value;
-        for (int i = 0; i < 500; i++) {
-            key = "key" + i*i;
-            value = "value"+ (i+i);
-            myMap.put(key, value);
-            hashMap.put(key, value);
+        Set<Map.Entry<Integer, String>> standartEntrySet = hashMap.entrySet();
+        Set<Map.Entry<Integer, String>> newEntrySet = myMap.entrySet();
+        for (int i = 0; i < 10000; i++) {
+            hashMap.put(i, ""+5);
+            myMap.put(i, ""+5);
         }
-        Set<Map.Entry<String, String>> myEntrySet = myMap.entrySet();
-        Set<Map.Entry<String, String>> hashEntrySet = hashMap.entrySet();
 
-        for (Map.Entry<String, String> en: myEntrySet) {
-            assertTrue(myMap.containsKey(en.getKey()));
-            assertEquals(myMap.containsKey(en.getKey()), hashMap.containsKey(en.getKey()));
-            assertTrue(myMap.containsValue(en.getValue()));
-            assertEquals(myMap.containsValue(en.getValue()), hashMap.containsValue(en.getValue()));
+        for (int i = 0; i < 1985; i+=3) {
+            hashMap.remove(i);
+            myMap.remove(i);
         }
+
+        myMap.put(500, ""+5);
+        hashMap.put(500, ""+5);
+        boolean containAll = true;
+        containAll = myMap.size() == hashMap.size();
+        assertTrue(containAll);
+        for (Map.Entry<Integer, String> newEntry : newEntrySet) {
+            Integer nek = newEntry.getKey();
+            String nev = newEntry.getValue();
+            boolean pairEquals = false;
+            for (Map.Entry<Integer, String> stEntry : standartEntrySet) {
+                boolean keyEquals = stEntry.getKey().equals(nek);
+                boolean valueEquals = stEntry.getValue().equals(nev);
+                if(keyEquals && valueEquals){
+                    pairEquals = true;
+                    break;
+                }
+            }
+            containAll &= pairEquals;
+            assertTrue(containAll);
+        }
+        assertTrue(containAll);
     }
 
 }
