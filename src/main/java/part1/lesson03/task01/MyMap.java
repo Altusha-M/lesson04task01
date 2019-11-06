@@ -1,5 +1,9 @@
 package part1.lesson03.task01;
 
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -330,21 +334,56 @@ public class MyMap<K, V> implements Map<K, V> {
         }
     }
 
-    public static void main(String[] args) {
+
+    void cleanup(Object object, Set<String> fieldsToCleanup, Set<String> fieldsToOutput) {
+        Class clazz = object.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        ArrayList<String> fieldsList = new ArrayList<>();
+        for (Field f: fields) {
+            fieldsList.add(f.getName());
+        }
+        if (!fieldsToCleanup.containsAll(fieldsList)
+            || !fieldsToOutput.containsAll(fieldsList)){
+            throw new IllegalArgumentException();
+        }
+
+    }
+
+    public static void main(String[] args) throws
+            IllegalAccessException, InstantiationException,
+            ClassNotFoundException, NoSuchMethodException,
+            InvocationTargetException {
+
         MyMap<String, Integer> myMap = new MyMap<>();
         HashMap<String, Integer> hashMap = new HashMap<>();
 
-        for (int i = 0; i < 25; i++) {
-            myMap.put(i + "23" + "", i);
-            hashMap.put(i + "23" + "", i);
-        }
-        for (int i = 0; i < 25; i++) {
-            myMap.put(i + "12" + i, i);
-            hashMap.put(i + "12" + i, i);
-        }
-        System.out.println(myMap.keySet());
-        System.out.println(hashMap.keySet());
-        Collection<Integer> a = myMap.values();
-        System.out.println(a);
+        myMap.put("stri1ng", 1);
+        myMap.put("string", 1);
+        myMap.put("str123ing", 1);
+        myMap.put("strin312g", 1);
+        myMap.put("stri2ng", 1);
+        myMap.put("str112323ing", 1);
+
+        Class c = myMap.getClass();
+        String clName = c.getName();
+        Class myMapClass = Class.forName(clName);
+        Object obj = c.newInstance();
+        //Test test = (Test) obj;
+        /*Method[] methods = c.getMethods();
+        for (Method method : methods) {
+            System.out.println("Имя: " + method.getName());
+            System.out.println("Возвращаемый тип: " + method.getReturnType().getName());
+            Class[] paramTypes = method.getParameterTypes();
+            System.out.print("Типы параметров: ");
+            for (Class paramType : paramTypes) {
+                System.out.print(" " + paramType.getName());
+            }
+            System.out.println();
+        }*/
+        Class[] paramTypes = new Class[] { int.class, String.class};
+        Method method = c.getMethod("keySet");
+        Object[] args1 = new Object[] { };
+        HashSet<Map.Entry<String, Integer>> hs = (HashSet<Entry<String, Integer>>) method.invoke(myMap, args1);
+        System.out.println(hs);
     }
 }
