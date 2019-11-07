@@ -4,14 +4,34 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class Cleanup {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        MyClass0 mycl0 = new MyClass0();
+        System.out.println(mycl0);
+        cleanup(mycl0, new HashSet<String>(){{add("cl");}}, new HashSet<String>(){{add("i");}});
+        System.out.println(mycl0);
 
     }
+
+    static class MyClass0 {
+        int i = 122;
+        String s = "MyClass0";
+        MyClass1 cl = new MyClass1();
+        public String toString(){
+            return "i = " + i + "\ns = " + s + "\nMyClass1 = " + cl;
+        }
+    }
+
+    static class MyClass1 {
+        int i = 1;
+        String s = "MyClass1";
+    }
+
 
     static void cleanup(Object object, Set<String> fieldsToCleanup, Set<String> fieldsToOutput)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -21,6 +41,7 @@ public class Cleanup {
         Class clazz = object.getClass();
         Field[] fields = clazz.getDeclaredFields();
         ArrayList<String> fieldsList = new ArrayList<>();
+
 
         if (!(object instanceof Map)) {
             for (Field f : fields) {
@@ -33,8 +54,57 @@ public class Cleanup {
             for (Field f : fields) {
                 if (fieldsToOutput.contains(f.getName())) {
                     f.setAccessible(true);
-                    System.out.println((String) f.get(object));
-                    f.setAccessible(false);
+                    switch (f.getType().getName()) {
+                        case ("int"): {
+                            System.out.println(String.valueOf(f.getInt(object)));
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("char"): {
+                            System.out.println(String.valueOf(f.getChar(object)));
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("byte"): {
+                            System.out.println(String.valueOf(f.getByte(object)));
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("short"): {
+                            System.out.println(String.valueOf(f.getShort(object)));
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("long"): {
+                            System.out.println(String.valueOf(f.getLong(object)));
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("float"): {
+                            System.out.println(String.valueOf(f.getFloat(object)));
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("double"): {
+                            System.out.println(String.valueOf(f.getDouble(object)));
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("boolean"): {
+                            System.out.println(String.valueOf(f.getBoolean(object)));
+                            f.setAccessible(false);
+                            break;
+                        }
+                        default: {
+                            if (f.get(object) == null){
+                                System.out.println((char[]) null);
+                            }
+                            f.get(object.toString());
+                            f.setAccessible(false);
+                            break;
+                        }
+                    }
+
                 }
 
                 if (fieldsToCleanup.contains(f.getName())) {
