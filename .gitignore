@@ -4,3 +4,5 @@
 *.iml
 .gitignore
 /src/main/java/_06_11_lesson/
+/src/main/java/_07_11_lesson/FilePaths.java
+/src/test/java/part1/lesson03/task01/

@@ -4,34 +4,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class Cleanup {
 
-    public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        MyClass0 mycl0 = new MyClass0();
-        System.out.println(mycl0);
-        cleanup(mycl0, new HashSet<String>(){{add("cl");}}, new HashSet<String>(){{add("i");}});
-        System.out.println(mycl0);
-
+    public static void main(String[] args) {
     }
-
-    static class MyClass0 {
-        int i = 122;
-        String s = "MyClass0";
-        MyClass1 cl = new MyClass1();
-        public String toString(){
-            return "i = " + i + "\ns = " + s + "\nMyClass1 = " + cl;
-        }
-    }
-
-    static class MyClass1 {
-        int i = 1;
-        String s = "MyClass1";
-    }
-
 
     static void cleanup(Object object, Set<String> fieldsToCleanup, Set<String> fieldsToOutput)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -56,12 +35,12 @@ public class Cleanup {
                     f.setAccessible(true);
                     switch (f.getType().getName()) {
                         case ("int"): {
-                            System.out.println(String.valueOf(f.getInt(object)));
+                            System.out.println(f.getInt(object));
                             f.setAccessible(false);
                             break;
                         }
                         case ("char"): {
-                            System.out.println(String.valueOf(f.getChar(object)));
+                            System.out.println(f.getChar(object));
                             f.setAccessible(false);
                             break;
                         }
@@ -76,27 +55,27 @@ public class Cleanup {
                             break;
                         }
                         case ("long"): {
-                            System.out.println(String.valueOf(f.getLong(object)));
+                            System.out.println(f.getLong(object));
                             f.setAccessible(false);
                             break;
                         }
                         case ("float"): {
-                            System.out.println(String.valueOf(f.getFloat(object)));
+                            System.out.println(f.getFloat(object));
                             f.setAccessible(false);
                             break;
                         }
                         case ("double"): {
-                            System.out.println(String.valueOf(f.getDouble(object)));
+                            System.out.println(f.getDouble(object));
                             f.setAccessible(false);
                             break;
                         }
                         case ("boolean"): {
-                            System.out.println(String.valueOf(f.getBoolean(object)));
+                            System.out.println(f.getBoolean(object));
                             f.setAccessible(false);
                             break;
                         }
                         default: {
-                            if (f.get(object) == null){
+                            if (f.get(object) == null) {
                                 System.out.println((char[]) null);
                             }
                             f.get(object.toString());
