@@ -1,9 +1,9 @@
 package part1.lesson03.task01;
 
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -67,11 +67,11 @@ class Node<K, V> implements Map.Entry<K, V> {
 public class MyMap<K, V> implements Map<K, V> {
     HashMap<Integer, Integer> n = new HashMap<>();
     HashMap nn = new HashMap();
+    Set<Map.Entry<K, V>> EntrySet = new HashSet<>();
     private int size = 16;
     private Node<K, V>[] myMap = new Node[size];
     private int bucketIndex;
     private int counter = 0;
-    Set<Map.Entry<K,V>> EntrySet = new HashSet<>();
 
     public MyMap() {
     }
@@ -129,7 +129,7 @@ public class MyMap<K, V> implements Map<K, V> {
     private int getBucketIndex(K key) {
         int buckInd;
         try {
-            buckInd = key.hashCode() & (size-1);
+            buckInd = key.hashCode() & (size - 1);
         } catch (NullPointerException e) {
             throw e;
         }
@@ -146,9 +146,7 @@ public class MyMap<K, V> implements Map<K, V> {
         bucketIndex = getBucketIndex(newNode.getKey());
         if (myMap[bucketIndex] == null) {
             counter++;
-            System.out.println(myMap[bucketIndex]);
             myMap[bucketIndex] = newNode;
-            System.out.println(myMap[bucketIndex]);
             entrySet();
             return null;
         }
@@ -334,21 +332,18 @@ public class MyMap<K, V> implements Map<K, V> {
         }
     }
 
+    static class intClazz {
+        static private int[] i = {1, 3, 5, 62, 3, 3};
+        static private String s = "private String";
 
-    void cleanup(Object object, Set<String> fieldsToCleanup, Set<String> fieldsToOutput) {
-        Class clazz = object.getClass();
-        Field[] fields = clazz.getDeclaredFields();
-        ArrayList<String> fieldsList = new ArrayList<>();
-        for (Field f: fields) {
-            fieldsList.add(f.getName());
-        }
-        if (!fieldsToCleanup.containsAll(fieldsList)
-            || !fieldsToOutput.containsAll(fieldsList)){
-            throw new IllegalArgumentException();
+        static public int[] getI() {
+            return i;
         }
 
+        static public String getS() {
+            return s;
+        }
     }
-
     public static void main(String[] args) throws
             IllegalAccessException, InstantiationException,
             ClassNotFoundException, NoSuchMethodException,
@@ -357,17 +352,40 @@ public class MyMap<K, V> implements Map<K, V> {
         MyMap<String, Integer> myMap = new MyMap<>();
         HashMap<String, Integer> hashMap = new HashMap<>();
 
-        myMap.put("stri1ng", 1);
-        myMap.put("string", 1);
-        myMap.put("str123ing", 1);
+        System.out.println(myMap instanceof Map);
+//        myMap.put(123, 1);
+//        myMap.put(33333, 1);
+//        myMap.put(22222, 1);
         myMap.put("strin312g", 1);
         myMap.put("stri2ng", 1);
         myMap.put("str112323ing", 1);
 
-        Class c = myMap.getClass();
-        String clName = c.getName();
-        Class myMapClass = Class.forName(clName);
-        Object obj = c.newInstance();
+        System.out.println(myMap);
+
+        cleanup(myMap, new HashSet<String>() {{
+            add("stri2ng");
+        }}, new HashSet<String>() {{
+            add("str112323ing");
+        }});
+
+        System.out.println(myMap);
+        System.out.println("_________________________________________");
+        intClazz cl = new intClazz();
+        System.out.println(cl.getS());
+        cleanup(cl, new HashSet<String>(){{add("s");}},
+                new HashSet<String>(){{add("s");}});
+        System.out.println(cl.getS());
+        System.exit(0);
+
+        Class myMapClass = myMap.getClass();
+        myMapClass.getGenericInterfaces();
+
+        intClazz intClas = new intClazz();
+        Class intClass = intClas.getClass();
+        Field[] fi = intClass.getDeclaredFields();
+        for (Field f : fi) {
+            System.out.println(f.getType().getName());
+        }
         //Test test = (Test) obj;
         /*Method[] methods = c.getMethods();
         for (Method method : methods) {
@@ -380,10 +398,138 @@ public class MyMap<K, V> implements Map<K, V> {
             }
             System.out.println();
         }*/
-        Class[] paramTypes = new Class[] { int.class, String.class};
-        Method method = c.getMethod("keySet");
-        Object[] args1 = new Object[] { };
-        HashSet<Map.Entry<String, Integer>> hs = (HashSet<Entry<String, Integer>>) method.invoke(myMap, args1);
-        System.out.println(hs);
+
+        Field[] fields = myMapClass.getDeclaredFields();
+        Field[] fields1 = myMapClass.getSuperclass().getDeclaredFields();
+//        for (Field f: fields) {
+//            System.out.println(f.getName());
+//            System.out.println(f.getType());
+//        }
+//        System.out.println("*******************************");
+//        for (Field f: fields1) {
+//            System.out.println(f.getName());
+//            System.out.println(f.getType());
+//        }
+//        Method[] methods = myMapClass.getMethods();
+//        for (Method method : methods) {
+//            System.out.println("Имя: " + method.getName());
+//            System.out.println("Возвращаемый тип: " + method.getReturnType().getName());
+//            Class[] paramTypes = method.getParameterTypes();
+//            System.out.print("Типы параметров: ");
+//            for (Class paramType : paramTypes) {
+//                System.out.print(" " + paramType.getName());
+//            }
+//            System.out.println();
+//        }
+        System.out.println(">>>" + myMapClass.getGenericInterfaces());
+        Method method = myMapClass.getMethod("get", Object.class);
+        System.out.println(method.invoke(myMap, "stri1ng"));
+        Method keyMeth = myMapClass.getMethod("keySet");
+
+        for (Field f : fields) {
+            System.out.println(f.getType().getName());
+//            if (f.getType().getName().equals("int")) {
+//                f.set(myMap, 0);
+//            } else {
+//                f.set(myMap, null);
+//            }
+//            hs.add((Integer) method.invoke(myMap, f.get()));
+            System.out.println(f.get(myMap));
+        System.out.println(myMap);
+        }
+
+
+    }
+
+    static void cleanup(Object object, Set<String> fieldsToCleanup, Set<String> fieldsToOutput)
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        if (fieldsToCleanup.isEmpty() && fieldsToOutput.isEmpty()) {
+            return;
+        }
+        Class clazz = object.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        ArrayList<String> fieldsList = new ArrayList<>();
+
+        if (!(object instanceof Map)) {
+            for (Field f : fields) {
+                fieldsList.add(f.getName());
+            }
+            if (!fieldsList.containsAll(fieldsToCleanup)
+                    || !fieldsList.containsAll(fieldsToOutput)) {
+                throw new IllegalArgumentException();
+            }
+            for (Field f : fields) {
+                if (fieldsToOutput.contains(f.getName())) {
+                    f.setAccessible(true);
+                    System.out.println((String) f.get(object));
+                    f.setAccessible(false);
+                }
+
+                if (fieldsToCleanup.contains(f.getName())) {
+                    f.setAccessible(true);
+                    switch (f.getType().getName()) {
+                        case ("int"): {
+                            f.setInt(object, 0);
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("char"): {
+                            f.setChar(object, '\u0000');
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("byte"): {
+                            f.setByte(object, (byte) 0);
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("short"): {
+                            f.setShort(object, (short) 0);
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("long"): {
+                            f.setLong(object, 0L);
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("float"): {
+                            f.setFloat(object, 0.0f);
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("double"): {
+                            f.setDouble(object, 0.0d);
+                            f.setAccessible(false);
+                            break;
+                        }
+                        case ("boolean"): {
+                            f.setBoolean(object, false);
+                            f.setAccessible(false);
+                            break;
+                        }
+                        default: {
+                            f.set(object, null);
+                            f.setAccessible(false);
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            Method getMeth = clazz.getMethod("get", Object.class);
+            Method removeMeth = clazz.getMethod("remove", Object.class);
+            Set<String> ks = (Set<String>) clazz.getMethod("keySet").invoke(object);
+            if (!ks.containsAll(fieldsToCleanup)
+                    || !ks.containsAll(fieldsToOutput)) {
+                throw new IllegalArgumentException();
+            }
+            for (String outField : fieldsToOutput) {
+                System.out.println(getMeth.invoke(object, outField));
+            }
+            for (String clearField : fieldsToCleanup) {
+                removeMeth.invoke(object, clearField);
+            }
+        }
     }
 }

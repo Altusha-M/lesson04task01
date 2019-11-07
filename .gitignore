@@ -3,3 +3,4 @@
 .idea
 *.iml
 .gitignore
+/src/main/java/_06_11_lesson/
